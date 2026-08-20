@@ -236,6 +236,15 @@ body { padding-bottom: 50px; }
     </div>
   </div>
 
+  <p class="section-label">Notes (optionnel)</p>
+  <div class="card">
+    <div class="field">
+      <label>Pour le technicien / le calendrier</label>
+      <textarea id="notes-tech" rows="3" placeholder="ex: chien dans la cour, entrer par le garage, prix négocié..."
+        style="background:transparent;border:none;outline:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;width:100%;resize:vertical;"></textarea>
+    </div>
+  </div>
+
   <div class="err-msg" id="val-msg">Veuillez remplir tous les champs obligatoires (*).</div>
 
   <button class="send-btn" id="send-btn" onclick="envoyer()">
@@ -249,16 +258,15 @@ body { padding-bottom: 50px; }
 const JOURS_FR = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
 const MOIS_FR  = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 
-const SUGGESTIONS = [
-  "Conduits centraux avec fournaise",
-  "Thermopompe murale",
-  "Echangeur air",
-  "Secheuse",
-  "Autre"
-];
-
 const WEBHOOK_URL = 'https://hook.us2.make.com/cq70a7dh5a8g5hdhltwuyf6tf4v06gtc';
 const VIP_DISCOUNT = 0.05;
+
+// Enregistrement dans Supabase — même base de données que le site de
+// réservation en ligne et l'app technicien, pour que ce rendez-vous confirmé
+// manuellement apparaisse dans les disponibilités et le calendrier technicien,
+// et pour empêcher un double-book sur une van déjà occupée à cette heure.
+const SUPABASE_URL = 'https://hlcvuhwqlqytmnleqgqw.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsY3Z1aHdxbHF5dG1ubGVxZ3F3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3NDA3NjAsImV4cCI6MjEwMDMxNjc2MH0.vli-DqA-nNXdRos3fr9jQINoPvlcE4Ca0dJoV_oUQO4';
 
 function initSelects() {
   const selJour = document.getElementById('sel-jour');
@@ -283,9 +291,28 @@ function initSelects() {
 }
 
 let rows = [];
+let CATALOGUE = []; // chargé depuis Supabase (liste officielle des services actifs)
+
+async function chargerCatalogue() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/confirmer_rdv_manuel`, {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ action: 'liste_services' })
+    });
+    const data = await res.json();
+    CATALOGUE = data.services || [];
+  } catch (err) {
+    CATALOGUE = [];
+  }
+}
 
 function addSvc() {
-  rows.push({ id: Date.now(), name: "", custom: "", qty: 1, dur: "", prix: "", indeter: false });
+  rows.push({ id: Date.now(), serviceId: "", nom: "", qty: 1, dur: "", prix: "", indeter: false });
   render();
 }
 
@@ -297,8 +324,15 @@ function removeRow(id) {
 function updateRow(id, field, val) {
   const r = rows.find(r => r.id === id);
   if (!r) return;
-  if (field === 'name')    { r.name = val; if (val !== 'Autre') r.custom = ''; }
-  if (field === 'custom')  r.custom  = val;
+  if (field === 'service') {
+    const svc = CATALOGUE.find(c => c.id === val);
+    r.serviceId = val;
+    r.nom       = svc ? svc.nom : "";
+    if (svc) {
+      r.dur  = svc.duree_min_base;
+      r.prix = svc.prix_base;
+    }
+  }
   if (field === 'qty')     r.qty     = parseInt(val) || 1;
   if (field === 'dur')     r.dur     = val;
   if (field === 'prix')    r.prix    = val;
@@ -321,23 +355,18 @@ function render() {
     const wrap = document.createElement('div');
     wrap.className = 'svc-card';
 
-    const opts = SUGGESTIONS.map(s =>
-      `<option value="${s}"${r.name===s?' selected':''}>${s}</option>`
+    const opts = CATALOGUE.map(c =>
+      `<option value="${c.id}"${r.serviceId===c.id?' selected':''}>${c.nom}</option>`
     ).join('');
 
     let html = `
       <div class="svc-top">
-        <select class="${r.name?'':'empty'}" onchange="updateRow(${r.id},'name',this.value)">
-          <option value="" disabled ${r.name?'':'selected'}>Choisir un service...</option>
+        <select class="${r.serviceId?'':'empty'}" onchange="updateRow(${r.id},'service',this.value)">
+          <option value="" disabled ${r.serviceId?'':'selected'}>Choisir un service...</option>
           ${opts}
         </select>
         <button class="rm-btn" onclick="removeRow(${r.id})" aria-label="Retirer">×</button>
       </div>`;
-
-    if (r.name === 'Autre') {
-      html += `<input class="svc-custom-name" type="text" placeholder="Nom du service personnalisé..."
-        value="${r.custom}" oninput="updateRow(${r.id},'custom',this.value)">`;
-    }
 
     html += `
       <div class="svc-bottom">
@@ -397,7 +426,7 @@ function render() {
   }
 }
 
-function envoyer() {
+async function envoyer() {
   const nom      = document.getElementById('nom').value.trim();
   const tel      = document.getElementById('tel').value.trim();
   const courriel = document.getElementById('courriel').value.trim();
@@ -406,10 +435,12 @@ function envoyer() {
   const heure    = document.getElementById('sel-heure').value;
   const min      = document.getElementById('sel-min').value;
   const vip      = document.getElementById('vip-check').checked;
+  const notes    = document.getElementById('notes-tech').value.trim();
   const msg      = document.getElementById('val-msg');
   const btn      = document.getElementById('send-btn');
 
-  if (!nom || !tel || !courriel || !adresse || !jour || !heure || !min || rows.length === 0) {
+  const servicesIncomplets = rows.some(r => !r.serviceId);
+  if (!nom || !tel || !courriel || !adresse || !jour || !heure || !min || rows.length === 0 || servicesIncomplets) {
     msg.style.display = 'block';
     msg.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
@@ -417,25 +448,75 @@ function envoyer() {
   msg.style.display = 'none';
 
   const svcsTexte = rows.map(r => {
-    const nomSvc = r.name === 'Autre' ? (r.custom || 'Autre') : r.name;
     const p = r.indeter ? 'A determiner' : (parseFloat(r.prix)||0)+'$';
-    return `${nomSvc} x${r.qty} - ${p}`;
+    return `${r.nom} x${r.qty} - ${p}`;
   }).join(' | ');
 
+  const heureComplete = heure+':'+min+':00';
+
+  // Payload pour le webhook Make existant — on ajoute juste "notes" (utilisé
+  // nulle part avant) pour que Make puisse la mettre dans la description de
+  // l'événement Google Calendar créé. Le reste est inchangé.
   const payload = {
     nom: nom,
     telephone: tel,
     courriel: courriel,
     adresse: adresse,
     date: jour,
-    heure: heure+':'+min+':00',
+    heure: heureComplete,
     services: svcsTexte,
-    vip: vip
+    vip: vip,
+    notes: notes
   };
 
-  btn.textContent = 'Envoi en cours...';
+  // Payload structuré (services par service_id officiel) pour Supabase — même
+  // base de données que le site de réservation et l'app technicien.
+  const payloadSupabase = {
+    nom: nom,
+    telephone: tel,
+    courriel: courriel,
+    adresse: adresse,
+    date: jour,
+    heure: heureComplete,
+    vip: vip,
+    notes_technicien: notes,
+    services: rows.map(r => ({
+      service_id: r.serviceId,
+      quantite: r.qty,
+      duree_min: parseInt(r.dur) || 0,
+      prix: r.indeter ? 0 : (parseFloat(r.prix) || 0),
+      indetermine: !!r.indeter
+    }))
+  };
+
+  btn.textContent = 'Enregistrement...';
   btn.disabled = true;
 
+  // 1) D'abord Supabase — c'est la source de vérité qui bloque les conflits
+  // de van. Si ça échoue, on arrête tout: le rendez-vous n'est PAS confirmé.
+  let resultatSupabase;
+  try {
+    const resSb = await fetch(`${SUPABASE_URL}/functions/v1/confirmer_rdv_manuel`, {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payloadSupabase)
+    });
+    resultatSupabase = await resSb.json();
+    if (!resSb.ok || !resultatSupabase.ok) {
+      throw new Error(resultatSupabase.erreur || 'Erreur Supabase');
+    }
+  } catch (err) {
+    btn.textContent = 'Erreur (non enregistré) — réessayer';
+    btn.disabled = false;
+    return;
+  }
+
+  // 2) Ensuite le webhook Make existant, inchangé.
+  btn.textContent = 'Envoi en cours...';
   fetch(WEBHOOK_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -443,20 +524,28 @@ function envoyer() {
   })
   .then(r => {
     if (r.ok) {
-      btn.innerHTML = '✓ Confirmation envoyée';
-      btn.style.background = '#4ade80';
+      btn.innerHTML = resultatSupabase.avertissement
+        ? '✓ Enregistré — ⚠️ van à assigner manuellement'
+        : '✓ Confirmation envoyée';
+      btn.style.background = resultatSupabase.avertissement ? '#fbbf24' : '#4ade80';
     } else {
       return Promise.reject();
     }
   })
   .catch(() => {
-    btn.textContent = 'Erreur — réessayer';
+    // Le rendez-vous EST déjà enregistré dans Supabase à ce stade — seul
+    // l'envoi de la confirmation Make a échoué.
+    btn.textContent = 'Enregistré, mais confirmation non envoyée — réessayer';
     btn.disabled = false;
   });
 }
 
-initSelects();
-addSvc();
+async function init() {
+  initSelects();
+  await chargerCatalogue();
+  addSvc();
+}
+init();
 </script>
 </body>
 </html>
