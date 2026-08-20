@@ -3,802 +3,549 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Air-FP — App technicien</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Air-FP">
+<meta name="theme-color" content="#0f172a">
+<title>Air-FP — Confirmation RDV</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#F5F7F6; --surface:#FFFFFF; --ink:#14201E; --ink-soft:#55645F;
-    --line:#DDE4E1; --teal:#0C8479; --teal-dark:#095F58; --teal-tint:#E3F3F1;
-    --green:#4C8C4A; --green-tint:#EAF3E9; --amber:#B8791A; --amber-tint:#FBF0DE;
-    --red:#C24B3F; --red-tint:#FBEAE7; --radius:14px;
-    --font-display:'Fraunces', serif; --font-body:'Inter', system-ui, sans-serif; --font-mono:'IBM Plex Mono', monospace;
-  }
-  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); -webkit-font-smoothing:antialiased;}
-  h1,h2,h3{font-family:var(--font-display); font-weight:600; margin:0;}
-  .wrap{max-width:900px; margin:0 auto; padding:16px 14px 60px;}
+:root {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --surface2: #293548;
+  --border: #334155;
+  --accent: #38bdf8;
+  --vip: #fbbf24;
+  --vip-dim: #fbbf2420;
+  --text: #f1f5f9;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  --danger: #f87171;
+  --radius: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 16px; }
+body { padding-bottom: 50px; }
 
-  /* ---- sélecteur de technicien (plein écran, 1ère ouverture seulement) ---- */
-  #techPicker{position:fixed; inset:0; background:var(--bg); z-index:100; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px;}
-  #techPicker h2{font-size:22px; margin-bottom:6px; text-align:center;}
-  #techPicker p{color:var(--ink-soft); font-size:14px; margin:0 0 24px; text-align:center;}
-  .tech-btn{width:100%; max-width:320px; padding:18px; margin-bottom:12px; border-radius:var(--radius); border:1.5px solid var(--line); background:var(--surface); font-family:var(--font-body); font-size:17px; font-weight:600; color:var(--ink); cursor:pointer; transition:all .15s;}
-  .tech-btn:hover{border-color:var(--teal); background:var(--teal-tint); color:var(--teal-dark);}
+.header {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 16px 20px 14px; position: sticky; top: 0; z-index: 10;
+  display: flex; align-items: center; gap: 12px;
+}
+.logo {
+  width: 36px; height: 36px; background: var(--accent); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 600; color: #0f172a; flex-shrink: 0;
+}
+.header-text h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; }
+.header-text p { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
 
-  /* ---- header ---- */
-  header.top{display:flex; align-items:center; justify-content:space-between; padding:8px 2px 16px; flex-wrap:wrap; gap:10px;}
-  .brand{font-family:var(--font-display); font-size:18px; font-weight:600; color:var(--teal-dark);}
-  .qui{font-size:12.5px; color:var(--ink-soft);}
-  .qui button{background:none; border:none; color:var(--teal); font-family:var(--font-body); font-size:12.5px; text-decoration:underline; cursor:pointer; padding:0; margin-left:6px;}
+.content { padding: 20px 16px; max-width: 480px; margin: 0 auto; }
 
-  .date-nav{display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:18px;}
-  .date-nav button{background:var(--surface); border:1.5px solid var(--line); border-radius:10px; width:38px; height:38px; font-size:16px; cursor:pointer; color:var(--teal-dark);}
-  .date-nav button:hover{border-color:var(--teal);}
-  .date-nav .lbl{font-family:var(--font-mono); font-size:14px; text-align:center; min-width:170px;}
-  .date-nav .lbl small{display:block; color:var(--ink-soft); font-size:11px; font-weight:normal;}
-  .today-link{display:block; text-align:center; margin:-10px 0 18px; font-size:12.5px;}
-  .today-link a{color:var(--teal); cursor:pointer; text-decoration:underline;}
+.section-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-dim); margin: 24px 0 10px;
+}
+.section-label:first-child { margin-top: 0; }
 
-  /* ---- colonnes vans ---- */
-  .vans-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
-  @media(max-width:680px){.vans-grid{grid-template-columns:1fr;}}
-  .van-col h3{font-size:14px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.04em; color:var(--teal-dark); margin-bottom:10px; padding-bottom:8px; border-bottom:1.5px solid var(--line);}
-  .empty-note{color:var(--ink-soft); font-size:13.5px; font-style:italic; padding:10px 2px;}
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
 
-  /* ---- carte job ---- */
-  .job-card{background:var(--surface); border:1.5px solid var(--line); border-radius:var(--radius); padding:14px; margin-bottom:12px;}
-  .job-card .heure{font-family:var(--font-mono); font-size:15px; font-weight:600; color:var(--teal-dark);}
-  .job-card .client{font-size:15.5px; font-weight:600; margin:3px 0 2px;}
-  .job-card .adresse{font-size:12.5px; color:var(--ink-soft); margin-bottom:6px;}
-  .job-card .services{font-size:12px; color:var(--ink-soft); margin-bottom:8px;}
-  .badge-statut{display:inline-block; font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px; margin-bottom:10px;}
-  .st-attente{background:var(--line); color:var(--ink-soft);}
-  .st-route{background:var(--teal-tint); color:var(--teal-dark);}
-  .st-arrive{background:var(--amber-tint); color:var(--amber);}
-  .st-cours{background:var(--teal-tint); color:var(--teal-dark);}
-  .st-termine{background:var(--green-tint); color:var(--green);}
-  .st-probleme{background:var(--red-tint); color:var(--red);}
-  .job-actions{display:flex; gap:8px; flex-wrap:wrap;}
-  .btn-action{flex:1; min-width:100px; padding:10px 8px; border-radius:9px; border:1.5px solid var(--teal); background:var(--teal); color:#fff; font-family:var(--font-body); font-size:13px; font-weight:600; cursor:pointer; text-align:center; text-decoration:none; display:inline-block; box-sizing:border-box;}
-  .btn-action.secondary{background:var(--surface); color:var(--teal-dark);}
-  .btn-action.photo{background:var(--surface); border-color:var(--line); color:var(--ink-soft);}
-  .btn-action.annuler{background:var(--surface); border-color:var(--red); color:var(--red);}
-  .btn-action:active{opacity:.75;}
-  .nb-photos{font-size:11px; color:var(--ink-soft); margin-top:6px;}
+.field { display: flex; flex-direction: column; padding: 12px 14px; border-bottom: 1px solid var(--border); }
+.field:last-child { border-bottom: none; }
+.field label { font-size: 11px; color: var(--text-muted); font-weight: 500; margin-bottom: 5px; letter-spacing: 0.02em; }
+.field input, .field select {
+  background: transparent; border: none; outline: none;
+  color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; width: 100%;
+  -webkit-appearance: none; appearance: none;
+}
+.field input::placeholder { color: var(--text-dim); }
+.field select option { background: #1e293b; color: var(--text); }
+.field select.empty { color: var(--text-dim); }
 
-  /* ---- bascule Jour / Mois ---- */
-  .vue-toggle{display:flex; justify-content:center; gap:8px; margin-bottom:16px;}
-  .toggle-btn{background:var(--surface); border:1.5px solid var(--line); border-radius:10px; padding:9px 22px; font-family:var(--font-body); font-size:13.5px; font-weight:600; color:var(--ink-soft); cursor:pointer;}
-  .toggle-btn.active{background:var(--teal); border-color:var(--teal); color:#fff;}
+.row3 { display: grid; grid-template-columns: 2fr 1fr 1fr; }
+.row3 .field { border-right: 1px solid var(--border); border-bottom: none; }
+.row3 .field:last-child { border-right: none; }
 
-  /* ---- calendrier mensuel ---- */
-  .month-nav{display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:16px;}
-  .month-nav button{background:var(--surface); border:1.5px solid var(--line); border-radius:10px; width:38px; height:38px; font-size:16px; cursor:pointer; color:var(--teal-dark);}
-  .month-nav button:hover{border-color:var(--teal);}
-  .month-nav .lbl{font-family:var(--font-mono); font-size:14px; text-align:center; min-width:150px; text-transform:capitalize;}
-  .month-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:6px;}
-  .jour-sem{font-size:11px; text-align:center; color:var(--ink-soft); font-family:var(--font-mono); padding-bottom:4px;}
-  .month-cell{aspect-ratio:1; border:1.5px solid var(--line); border-radius:10px; background:var(--surface); display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; position:relative; font-size:13px;}
-  .month-cell:hover{border-color:var(--teal);}
-  .month-cell.vide{border:none; background:none; cursor:default;}
-  .month-cell.aujourdhui{border-color:var(--teal); border-width:2px;}
-  .month-cell .num{font-weight:600;}
-  .month-cell .badge{position:absolute; top:3px; right:3px; background:var(--teal); color:#fff; font-size:10px; font-weight:700; border-radius:999px; min-width:16px; height:16px; display:flex; align-items:center; justify-content:center; padding:0 3px;}
+.svc-list { display: flex; flex-direction: column; gap: 10px; }
+.svc-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
 
-  .notes-lues{background:var(--bg); border-radius:10px; padding:12px; font-size:13.5px; white-space:pre-wrap; margin-bottom:14px; max-height:200px; overflow-y:auto;}
-  .notes-lues textarea{width:100%; margin-top:6px; padding:10px; border:1.5px solid var(--line); border-radius:9px; font-family:var(--font-body); font-size:14px; box-sizing:border-box;}
+.svc-top { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--border); }
+.svc-top select {
+  flex: 1; background: transparent; border: none; outline: none;
+  color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+  -webkit-appearance: none; appearance: none;
+}
+.svc-top select option { background: #1e293b; }
+.svc-top select.empty { color: var(--text-dim); }
 
-  /* ---- rdv sans van assignée ---- */
-  .sans-van-header{font-size:13px; font-weight:600; color:var(--amber); margin:4px 2px 10px;}
-  .job-card.sans-van{border-color:var(--amber);}
-  .prompt-van{background:var(--amber-tint); color:var(--amber); border-radius:9px; padding:8px 10px; font-size:12.5px; margin-bottom:10px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
-  .btn-van-choix{background:var(--amber); color:#fff; border:none; border-radius:7px; padding:6px 12px; font-family:var(--font-body); font-size:12px; font-weight:600; cursor:pointer;}
+.svc-custom-name {
+  width: 100%; background: transparent; border: none; outline: none;
+  color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+  padding: 12px 14px; border-bottom: 1px solid var(--border);
+}
+.svc-custom-name::placeholder { color: var(--text-dim); }
 
-  /* ---- bouton + formulaire "nouveau rdv" ---- */
-  .btn-nouveau-rdv{display:block; margin:0 auto 18px; background:var(--surface); border:1.5px dashed var(--teal); border-radius:10px; padding:10px 22px; font-family:var(--font-body); font-size:13.5px; font-weight:600; color:var(--teal-dark); cursor:pointer;}
-  .form-grid{display:grid; grid-template-columns:110px 1fr; gap:10px 12px; align-items:center; margin-bottom:16px;}
-  .form-grid label{font-size:12.5px; color:var(--ink-soft);}
-  .form-grid input, .form-grid select, .form-grid textarea{padding:9px 10px; border:1.5px solid var(--line); border-radius:8px; font-family:var(--font-body); font-size:14px; box-sizing:border-box; width:100%;}
-  .form-grid textarea{resize:vertical;}
+.rm-btn { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 22px; line-height: 1; padding: 2px; flex-shrink: 0; }
+.rm-btn:active { color: var(--danger); }
 
-  /* ---- modal rapport ---- */
-  .modal-bg{position:fixed; inset:0; background:rgba(20,32,30,.55); z-index:200; display:flex; align-items:flex-end; justify-content:center;}
-  @media(min-width:680px){.modal-bg{align-items:center;}}
-  .modal{background:var(--surface); width:100%; max-width:560px; max-height:92vh; overflow-y:auto; border-radius:18px 18px 0 0; padding:22px 20px 30px;}
-  @media(min-width:680px){.modal{border-radius:18px;}}
-  .modal h2{font-size:20px; margin-bottom:2px;}
-  .modal .sub{color:var(--ink-soft); font-size:13px; margin-bottom:16px;}
-  .modal-close{float:right; background:none; border:none; font-size:20px; cursor:pointer; color:var(--ink-soft);}
-  .rapport-row{display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--line); font-size:14px;}
-  .rapport-row span:first-child{color:var(--ink-soft);}
-  .rapport-photos{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:14px;}
-  .rapport-photos img{width:100%; aspect-ratio:1; object-fit:cover; border-radius:8px; border:1px solid var(--line);}
-  .modal-btns{display:flex; gap:10px; margin-top:20px;}
-  .modal-btns button{flex:1; padding:12px; border-radius:10px; font-family:var(--font-body); font-size:14px; font-weight:600; cursor:pointer;}
-  .btn-print{background:var(--teal); color:#fff; border:1.5px solid var(--teal);}
-  .btn-fermer{background:var(--surface); color:var(--ink); border:1.5px solid var(--line);}
+.svc-bottom { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+.svc-field { display: flex; flex-direction: column; padding: 10px 12px; border-right: 1px solid var(--border); }
+.svc-field:last-child { border-right: none; }
+.svc-field label { font-size: 10px; color: var(--text-dim); font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; }
+.svc-field input {
+  background: transparent; border: none; outline: none;
+  color: var(--text); font-family: 'DM Mono', monospace; font-size: 14px; width: 100%;
+  -webkit-appearance: none;
+}
+.svc-field input::placeholder { color: var(--text-dim); }
+.svc-field input:disabled { color: var(--text-dim); }
 
-  input[type=file]{display:none;}
-  .toast{position:fixed; bottom:18px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; padding:10px 18px; border-radius:10px; font-size:13px; z-index:300; opacity:0; transition:opacity .25s;}
-  .toast.show{opacity:1;}
+.indeter-row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--border); }
+.indeter-row input[type=checkbox] { accent-color: var(--accent); width: 18px; height: 18px; flex-shrink: 0; }
+.indeter-row span { font-size: 13px; color: var(--text-muted); }
 
-  @media print{
-    body *{visibility:hidden;}
-    #modalRapport, #modalRapport *{visibility:visible;}
-    #modalRapport{position:absolute; inset:0;}
-    .modal-btns, .modal-close{display:none;}
-  }
+.add-btn {
+  width: 100%; background: var(--surface); border: 1px dashed var(--border);
+  border-radius: var(--radius); padding: 14px; color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif; font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px;
+}
+.add-btn:active { background: var(--surface2); }
+
+.summary {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px; margin-top: 10px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.summary-item { display: flex; flex-direction: column; gap: 3px; }
+.summary-item span:first-child { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+.summary-item span:last-child { font-size: 16px; font-weight: 600; font-family: 'DM Mono', monospace; color: var(--accent); }
+.summary-divider { width: 1px; height: 30px; background: var(--border); }
+
+.vip-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); margin-top: 10px; overflow: hidden;
+}
+.vip-toggle {
+  display: flex; align-items: center; gap: 12px; padding: 14px; cursor: pointer;
+}
+.vip-toggle input[type=checkbox] {
+  width: 20px; height: 20px; accent-color: var(--vip); flex-shrink: 0;
+}
+.vip-toggle-text { display: flex; flex-direction: column; gap: 2px; }
+.vip-toggle-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.vip-toggle-sub { font-size: 12px; color: var(--text-muted); }
+.vip-compare {
+  display: flex; border-top: 1px solid var(--border); background: var(--vip-dim);
+}
+.vip-compare-item {
+  flex: 1; display: flex; flex-direction: column; gap: 3px; align-items: center;
+  padding: 10px 8px;
+}
+.vip-compare-item:first-child { border-right: 1px solid var(--border); }
+.vip-compare-item span:first-child { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+.vip-reg-val { font-family: 'DM Mono', monospace; font-size: 14px; color: var(--text-dim); text-decoration: line-through; }
+.vip-final-val { font-family: 'DM Mono', monospace; font-size: 17px; font-weight: 600; color: var(--vip); }
+
+.send-btn {
+  width: 100%; margin-top: 28px; padding: 16px; background: var(--accent);
+  border: none; border-radius: var(--radius); color: #0f172a;
+  font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.send-btn:active { opacity: 0.85; }
+.err-msg { font-size: 13px; color: var(--danger); margin-top: 12px; text-align: center; display: none; }
 </style>
 </head>
 <body>
 
-<div id="techPicker">
-  <h2>Qui utilise l'app?</h2>
-  <p>Choisis ton nom — tu n'auras pas à le refaire à chaque ouverture.</p>
-  <div id="techBtns"></div>
-</div>
-
-<div class="wrap">
-  <header class="top">
-    <div class="brand">Air-FP · App technicien</div>
-    <div class="qui">👤 <strong id="techNomActuel"></strong><button id="btnChangerTech">changer</button></div>
-  </header>
-
-  <div class="vue-toggle">
-    <button class="toggle-btn active" id="btnVueJour">Jour</button>
-    <button class="toggle-btn" id="btnVueMois">Mois</button>
-  </div>
-
-  <div id="vueJour">
-    <div class="date-nav">
-      <button id="btnPrev">‹</button>
-      <div class="lbl" id="dateLbl"></div>
-      <button id="btnNext">›</button>
-    </div>
-    <div class="today-link"><a id="btnAujourdhui">Revenir à aujourd'hui</a></div>
-
-    <button class="btn-nouveau-rdv" id="btnNouveauRdv">+ Nouveau RDV</button>
-
-    <div id="sansVanSection"></div>
-
-    <div class="vans-grid" id="vansGrid">
-      <p class="empty-note">Chargement…</p>
-    </div>
-  </div>
-
-  <div id="vueMois" style="display:none;">
-    <div class="month-nav">
-      <button id="btnMoisPrev">‹</button>
-      <div class="lbl" id="moisLbl"></div>
-      <button id="btnMoisNext">›</button>
-    </div>
-    <div class="month-grid" id="monthGrid">
-      <p class="empty-note">Chargement…</p>
-    </div>
+<div class="header">
+  <div class="logo">AF</div>
+  <div class="header-text">
+    <h1>Air-FP</h1>
+    <p>Confirmation de rendez-vous</p>
   </div>
 </div>
 
-<div id="modalRapportBg" class="modal-bg" style="display:none;">
-  <div class="modal" id="modalRapport"></div>
-</div>
+<div class="content">
 
-<div id="modalNotesBg" class="modal-bg" style="display:none;">
-  <div class="modal" id="modalNotes"></div>
-</div>
+  <p class="section-label">Client</p>
+  <div class="card">
+    <div class="field"><label>Prénom et nom *</label><input type="text" id="nom" placeholder="ex: Émilie David" autocomplete="off"></div>
+    <div class="field"><label>Téléphone *</label><input type="tel" id="tel" placeholder="ex: 819-208-9149" autocomplete="off"></div>
+    <div class="field"><label>Courriel *</label><input type="email" id="courriel" placeholder="ex: client@hotmail.com" autocomplete="off"></div>
+    <div class="field"><label>Adresse complète *</label><input type="text" id="adresse" placeholder="ex: 23 chemin des renards blancs, L'Ange-Gardien" autocomplete="off"></div>
+  </div>
 
-<div id="modalNouveauBg" class="modal-bg" style="display:none;">
-  <div class="modal" id="modalNouveau"></div>
-</div>
+  <p class="section-label">Date et heure *</p>
+  <div class="card">
+    <div class="row3">
+      <div class="field">
+        <label>Jour</label>
+        <select id="sel-jour" class="empty" onchange="this.classList.remove('empty')">
+          <option value="" disabled selected>Choisir...</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Heure</label>
+        <select id="sel-heure" class="empty" onchange="this.classList.remove('empty')">
+          <option value="" disabled selected>—</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Minute</label>
+        <select id="sel-min" class="empty" onchange="this.classList.remove('empty')">
+          <option value="" disabled selected>—</option>
+        </select>
+      </div>
+    </div>
+  </div>
 
-<div class="toast" id="toast"></div>
+  <p class="section-label">Services *</p>
+  <div class="svc-list" id="svc-list"></div>
+  <button class="add-btn" onclick="addSvc()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Ajouter un service
+  </button>
+
+  <div class="summary" id="summary" style="display:none">
+    <div class="summary-item"><span>Durée totale</span><span id="dur-val">—</span></div>
+    <div class="summary-divider"></div>
+    <div class="summary-item"><span>Total estimé</span><span id="total-val">—</span></div>
+  </div>
+
+  <div class="vip-card" id="vip-card" style="display:none">
+    <label class="vip-toggle" for="vip-check">
+      <input type="checkbox" id="vip-check" onchange="render()">
+      <div class="vip-toggle-text">
+        <span class="vip-toggle-title">Inscription VIP gratuite</span>
+        <span class="vip-toggle-sub">-5% rabais immédiat sur cette soumission</span>
+      </div>
+    </label>
+    <div class="vip-compare" id="vip-compare" style="display:none">
+      <div class="vip-compare-item">
+        <span>Prix régulier</span>
+        <span class="vip-reg-val" id="vip-reg-val">—</span>
+      </div>
+      <div class="vip-compare-item">
+        <span>Prix VIP</span>
+        <span class="vip-final-val" id="vip-final-val">—</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="section-label">Notes (optionnel)</p>
+  <div class="card">
+    <div class="field">
+      <label>Pour le technicien / le calendrier</label>
+      <textarea id="notes-tech" rows="3" placeholder="ex: chien dans la cour, entrer par le garage, prix négocié..."
+        style="background:transparent;border:none;outline:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;width:100%;resize:vertical;"></textarea>
+    </div>
+  </div>
+
+  <div class="err-msg" id="val-msg">Veuillez remplir tous les champs obligatoires (*).</div>
+
+  <button class="send-btn" id="send-btn" onclick="envoyer()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    Envoyer la confirmation
+  </button>
+
+</div>
 
 <script>
+const JOURS_FR = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+const MOIS_FR  = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+
+const WEBHOOK_URL = 'https://hook.us2.make.com/cq70a7dh5a8g5hdhltwuyf6tf4v06gtc';
+const VIP_DISCOUNT = 0.05;
+
+// Enregistrement dans Supabase — même base de données que le site de
+// réservation en ligne et l'app technicien, pour que ce rendez-vous confirmé
+// manuellement apparaisse dans les disponibilités et le calendrier technicien,
+// et pour empêcher un double-book sur une van déjà occupée à cette heure.
 const SUPABASE_URL = 'https://hlcvuhwqlqytmnleqgqw.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsY3Z1aHdxbHF5dG1ubGVxZ3F3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3NDA3NjAsImV4cCI6MjEwMDMxNjc2MH0.vli-DqA-nNXdRos3fr9jQINoPvlcE4Ca0dJoV_oUQO4';
-const JOURS = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 
-async function appelerTechApp(payload){
-  const res = await fetch(`${SUPABASE_URL}/functions/v1/tech_app`, {
-    method:'POST',
-    headers:{ apikey: SUPABASE_ANON_KEY, Authorization:`Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type':'application/json' },
-    body: JSON.stringify(payload)
-  });
-  const data = await res.json();
-  if(!res.ok) throw new Error(data.erreur || 'Erreur serveur');
-  return data;
-}
+function initSelects() {
+  const selJour = document.getElementById('sel-jour');
+  const selH    = document.getElementById('sel-heure');
+  const selM    = document.getElementById('sel-min');
 
-function showToast(msg){
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 2200);
-}
-
-function toISODate(d){
-  return d.toISOString ? new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,10) : d;
-}
-
-/* ============================================================
-   Sélection du technicien — une seule fois, persistée localement
-   ============================================================ */
-let techId = localStorage.getItem('af_tech_id');
-let techNom = localStorage.getItem('af_tech_nom');
-
-async function initTechPicker(forcer){
-  if(techId && techNom && !forcer){
-    document.getElementById('techPicker').style.display = 'none';
-    document.getElementById('techNomActuel').textContent = techNom;
-    return;
+  const today = new Date();
+  for (let i = 0; i <= 60; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    const dow   = JOURS_FR[d.getDay()];
+    const label = dow.charAt(0).toUpperCase()+dow.slice(1)+' '+d.getDate()+' '+MOIS_FR[d.getMonth()];
+    const val   = d.toISOString().split('T')[0];
+    selJour.appendChild(new Option(label, val));
   }
-  const picker = document.getElementById('techPicker');
-  picker.style.display = 'flex';
-  const btnsDiv = document.getElementById('techBtns');
-  btnsDiv.innerHTML = '<p style="color:var(--ink-soft)">Chargement…</p>';
-  try{
-    const data = await appelerTechApp({ action:'techs_liste' });
-    btnsDiv.innerHTML = (data.techs||[]).map(t=>
-      `<button class="tech-btn" data-id="${t.id}" data-nom="${t.nom}">${t.nom}</button>`
-    ).join('');
-    btnsDiv.querySelectorAll('.tech-btn').forEach(b=>{
-      b.addEventListener('click', ()=>{
-        techId = b.dataset.id; techNom = b.dataset.nom;
-        localStorage.setItem('af_tech_id', techId);
-        localStorage.setItem('af_tech_nom', techNom);
-        picker.style.display = 'none';
-        document.getElementById('techNomActuel').textContent = techNom;
-        chargerJournee();
-      });
+
+  for (let h = 8; h <= 17; h++) {
+    selH.appendChild(new Option(h+'h00', String(h).padStart(2,'0')));
+  }
+
+  ['00','15','30','45'].forEach(m => selM.appendChild(new Option(':'+m, m)));
+}
+
+let rows = [];
+let CATALOGUE = []; // chargé depuis Supabase (liste officielle des services actifs)
+
+async function chargerCatalogue() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/confirmer_rdv_manuel`, {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ action: 'liste_services' })
     });
-  }catch(err){
-    btnsDiv.innerHTML = `<p style="color:var(--red)">Impossible de charger la liste des techniciens (${err.message}).</p>`;
-  }
-}
-document.getElementById('btnChangerTech').addEventListener('click', ()=> initTechPicker(true));
-
-/* ============================================================
-   Navigation par date + chargement de la journée (les 2 vans)
-   ============================================================ */
-let dateCourante = new Date();
-dateCourante.setHours(0,0,0,0);
-
-/* ============================================================
-   Bascule Jour / Mois
-   ============================================================ */
-let vueCourante = 'jour';
-let moisCourant = new Date(dateCourante.getFullYear(), dateCourante.getMonth(), 1);
-
-function toggleVue(v){
-  vueCourante = v;
-  document.getElementById('btnVueJour').classList.toggle('active', v==='jour');
-  document.getElementById('btnVueMois').classList.toggle('active', v==='mois');
-  document.getElementById('vueJour').style.display = v==='jour' ? '' : 'none';
-  document.getElementById('vueMois').style.display = v==='mois' ? '' : 'none';
-  if(v==='mois'){
-    moisCourant = new Date(dateCourante.getFullYear(), dateCourante.getMonth(), 1);
-    chargerMois();
-  }
-}
-document.getElementById('btnVueJour').addEventListener('click', ()=>toggleVue('jour'));
-document.getElementById('btnVueMois').addEventListener('click', ()=>toggleVue('mois'));
-
-document.getElementById('btnMoisPrev').addEventListener('click', ()=>{
-  moisCourant.setMonth(moisCourant.getMonth()-1); chargerMois();
-});
-document.getElementById('btnMoisNext').addEventListener('click', ()=>{
-  moisCourant.setMonth(moisCourant.getMonth()+1); chargerMois();
-});
-
-function moisISO(d){
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-}
-
-async function chargerMois(){
-  document.getElementById('moisLbl').textContent = `${MOIS[moisCourant.getMonth()]} ${moisCourant.getFullYear()}`;
-  const grid = document.getElementById('monthGrid');
-  grid.innerHTML = '<p class="empty-note">Chargement…</p>';
-  try{
-    const data = await appelerTechApp({ action:'jobs_mois', mois: moisISO(moisCourant) });
-    renderMonthGrid(data.comptes || {});
-  }catch(err){
-    grid.innerHTML = `<p class="empty-note">Impossible de charger le mois (${err.message}).</p>`;
+    const data = await res.json();
+    CATALOGUE = data.services || [];
+  } catch (err) {
+    CATALOGUE = [];
   }
 }
 
-function renderMonthGrid(comptes){
-  const grid = document.getElementById('monthGrid');
-  const annee = moisCourant.getFullYear(), mois = moisCourant.getMonth();
-  const premierJour = new Date(annee, mois, 1);
-  const nbJours = new Date(annee, mois+1, 0).getDate();
-  let decalage = premierJour.getDay() - 1; // grille commence le lundi
-  if(decalage < 0) decalage = 6;
-  const ajd = toISODate(new Date());
-
-  let html = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].map(j=>`<div class="jour-sem">${j}</div>`).join('');
-  for(let i=0;i<decalage;i++) html += '<div class="month-cell vide"></div>';
-  for(let jour=1; jour<=nbJours; jour++){
-    const iso = `${annee}-${String(mois+1).padStart(2,'0')}-${String(jour).padStart(2,'0')}`;
-    const n = comptes[iso] || 0;
-    const estAjd = iso === ajd;
-    html += `<div class="month-cell${estAjd?' aujourdhui':''}" data-date="${iso}">
-      <div class="num">${jour}</div>
-      ${n>0 ? `<div class="badge">${n}</div>` : ''}
-    </div>`;
-  }
-  grid.innerHTML = html;
-  grid.querySelectorAll('.month-cell[data-date]').forEach(c=>{
-    c.addEventListener('click', ()=>{
-      const [an,mo,jr] = c.dataset.date.split('-').map(Number);
-      dateCourante = new Date(an, mo-1, jr);
-      renderDateLbl();
-      toggleVue('jour');
-      chargerJournee();
-    });
-  });
+function addSvc() {
+  rows.push({ id: Date.now(), serviceId: "", nom: "", qty: 1, dur: "", prix: "", indeter: false });
+  render();
 }
 
-function renderDateLbl(){
-  const iso = toISODate(dateCourante);
-  const estAujourdhui = iso === toISODate(new Date());
-  document.getElementById('dateLbl').innerHTML =
-    `${JOURS[dateCourante.getDay()]} ${dateCourante.getDate()} ${MOIS[dateCourante.getMonth()]}` +
-    (estAujourdhui ? '<small>Aujourd\'hui</small>' : '');
+function removeRow(id) {
+  rows = rows.filter(r => r.id !== id);
+  render();
 }
 
-document.getElementById('btnPrev').addEventListener('click', ()=>{
-  dateCourante.setDate(dateCourante.getDate()-1); renderDateLbl(); chargerJournee();
-});
-document.getElementById('btnNext').addEventListener('click', ()=>{
-  dateCourante.setDate(dateCourante.getDate()+1); renderDateLbl(); chargerJournee();
-});
-document.getElementById('btnAujourdhui').addEventListener('click', ()=>{
-  dateCourante = new Date(); dateCourante.setHours(0,0,0,0); renderDateLbl(); chargerJournee();
-});
-
-function statutInfo(statut){
-  const map = {
-    'confirmé':   { classe:'st-attente', texte:'À venir' },
-    'en_route':   { classe:'st-route',   texte:'En route' },
-    'arrivé':     { classe:'st-arrive',  texte:'Arrivé' },
-    'travail_commencé': { classe:'st-cours', texte:'En cours' },
-    'pause':      { classe:'st-cours',   texte:'Pause' },
-    'terminé':    { classe:'st-termine', texte:'Terminé' },
-    'payé':       { classe:'st-termine', texte:'Payé' },
-    'problème':   { classe:'st-probleme',texte:'Problème' },
-  };
-  return map[statut] || { classe:'st-attente', texte: statut||'' };
-}
-
-function urlGoogleMaps(j){
-  // Coordonnées précises si on les a (géocodées à la réservation), sinon
-  // on laisse Google Maps résoudre l'adresse texte.
-  const query = (j.lat!=null && j.lng!=null) ? `${j.lat},${j.lng}` : (j.adresse||'');
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-}
-
-function jobCardHtml(j){
-  const si = statutInfo(j.statut);
-  const dejaArrive = !!j.arrivee_ts;
-  const dejaParti = !!j.depart_ts;
-  let actions = '';
-  if(!dejaArrive){
-    actions += `<button class="btn-action" data-action="arrivee" data-job="${j.id}">📍 Arrivé</button>`;
-  } else if(!dejaParti){
-    actions += `<button class="btn-action" data-action="depart" data-job="${j.id}">🏁 Parti</button>`;
-  } else {
-    actions += `<button class="btn-action secondary" data-action="rapport" data-job="${j.id}">📋 Voir le rapport</button>`;
-  }
-  if(j.adresse || (j.lat!=null && j.lng!=null)){
-    actions += `<a class="btn-action secondary" href="${urlGoogleMaps(j)}" target="_blank" rel="noopener">🗺️ Carte</a>`;
-  }
-  actions += `<button class="btn-action photo" data-action="photo" data-job="${j.id}">📷 Photo</button>`;
-  actions += `<button class="btn-action secondary" data-action="notes" data-job="${j.id}">📝 Notes</button>`;
-  actions += `<button class="btn-action annuler" data-action="annuler" data-job="${j.id}">❌ Annuler</button>`;
-
-  const sansVan = j.van_id == null;
-  const promptVan = (sansVan && vansCourants.length)
-    ? `<div class="prompt-van">⚠️ Van non assignée —
-        ${vansCourants.map(v=>`<button class="btn-van-choix" data-job="${j.id}" data-van="${v.id}">${v.nom}</button>`).join(' ')}
-      </div>`
-    : '';
-
-  return `<div class="job-card${sansVan?' sans-van':''}" data-jobcard="${j.id}">
-    ${promptVan}
-    <div class="heure">${j.heure_debut} – ${j.heure_fin}</div>
-    <div class="client">${j.client_nom}</div>
-    <div class="adresse">${j.adresse||''}</div>
-    <div class="services">${(j.services||[]).join(', ')}</div>
-    <div><span class="badge-statut ${si.classe}">${si.texte}</span></div>
-    <div class="job-actions">${actions}</div>
-    <div class="nb-photos" data-nbphotos="${j.id}">${j.nb_photos>0 ? `📷 ${j.nb_photos} photo(s)` : ''}</div>
-  </div>`;
-}
-
-let jobsCourants = [];
-let vansCourants = [];
-
-async function chargerJournee(){
-  const grid = document.getElementById('vansGrid');
-  grid.innerHTML = '<p class="empty-note">Chargement des jobs…</p>';
-  try{
-    const data = await appelerTechApp({ action:'jobs_jour', date: toISODate(dateCourante) });
-    vansCourants = data.vans || [];
-    jobsCourants = data.jobs || [];
-    renderVansGrid();
-  }catch(err){
-    grid.innerHTML = `<p class="empty-note">Impossible de charger la journée (${err.message}).</p>`;
-  }
-}
-
-function renderVansGrid(){
-  const grid = document.getElementById('vansGrid');
-  const sansVanDiv = document.getElementById('sansVanSection');
-  const sansVan = jobsCourants.filter(j=>j.van_id==null);
-  sansVanDiv.innerHTML = sansVan.length
-    ? `<div class="sans-van-header">⚠️ Sans van assignée (${sansVan.length})</div>${sansVan.map(jobCardHtml).join('')}`
-    : '';
-
-  if(!vansCourants.length){
-    grid.innerHTML = '<p class="empty-note">Aucune van configurée.</p>';
-    attacherActionsJobs();
-    return;
-  }
-  grid.innerHTML = vansCourants.map(v=>{
-    const jobsVan = jobsCourants.filter(j=>j.van_id===v.id);
-    const contenu = jobsVan.length
-      ? jobsVan.map(jobCardHtml).join('')
-      : '<p class="empty-note">Aucun job cette journée.</p>';
-    return `<div class="van-col"><h3>${v.nom}</h3>${contenu}</div>`;
-  }).join('');
-  attacherActionsJobs();
-}
-
-function attacherActionsJobs(){
-  document.querySelectorAll('.btn-action[data-action="arrivee"]').forEach(b=>{
-    b.addEventListener('click', ()=>marquerEvenement(b.dataset.job, 'arrivee'));
-  });
-  document.querySelectorAll('.btn-action[data-action="depart"]').forEach(b=>{
-    b.addEventListener('click', ()=>marquerEvenement(b.dataset.job, 'depart'));
-  });
-  document.querySelectorAll('.btn-action[data-action="rapport"]').forEach(b=>{
-    b.addEventListener('click', ()=>ouvrirRapport(b.dataset.job));
-  });
-  document.querySelectorAll('.btn-action[data-action="photo"]').forEach(b=>{
-    b.addEventListener('click', ()=>declencherUploadPhoto(b.dataset.job));
-  });
-  document.querySelectorAll('.btn-action[data-action="notes"]').forEach(b=>{
-    b.addEventListener('click', ()=>ouvrirNotes(b.dataset.job));
-  });
-  document.querySelectorAll('.btn-action[data-action="annuler"]').forEach(b=>{
-    b.addEventListener('click', ()=>confirmerAnnulation(b.dataset.job));
-  });
-  document.querySelectorAll('.btn-van-choix').forEach(b=>{
-    b.addEventListener('click', ()=>assignerVan(b.dataset.job, b.dataset.van));
-  });
-}
-
-/* ============================================================
-   Assigner une van à un rdv qui n'en a pas
-   ============================================================ */
-async function assignerVan(jobId, vanId){
-  try{
-    await appelerTechApp({ action:'assigner_van', job_id: jobId, van_id: vanId, tech_id: techId });
-    showToast('Van assignée');
-    await chargerJournee();
-  }catch(err){
-    showToast(`Erreur: ${err.message}`);
-  }
-}
-
-/* ============================================================
-   Notes (lecture + ajout)
-   ============================================================ */
-function ouvrirNotes(jobId){
-  const job = jobsCourants.find(j=>j.id===jobId);
-  if(!job) return;
-  const bg = document.getElementById('modalNotesBg');
-  const modal = document.getElementById('modalNotes');
-  modal.innerHTML = `
-    <button class="modal-close" id="btnFermerNotes">×</button>
-    <h2>Notes</h2>
-    <div class="sub">${job.client_nom} · ${job.heure_debut}</div>
-    <div class="notes-lues">${job.notes ? job.notes.replace(/</g,'&lt;') : '<span style="color:var(--ink-soft); font-style:italic;">Aucune note pour ce moment.</span>'}</div>
-    <label style="font-size:12.5px; color:var(--ink-soft);">Ajouter une note</label>
-    <textarea id="inpNouvelleNote" rows="3" placeholder="ex: chien dans la cour, client a rappelé pour..."></textarea>
-    <div class="modal-btns">
-      <button class="btn-fermer" id="btnFermerNotes2">Fermer</button>
-      <button class="btn-print" id="btnEnregistrerNote">Enregistrer la note</button>
-    </div>
-  `;
-  bg.style.display = 'flex';
-  document.getElementById('btnFermerNotes').addEventListener('click', fermerNotes);
-  document.getElementById('btnFermerNotes2').addEventListener('click', fermerNotes);
-  document.getElementById('btnEnregistrerNote').addEventListener('click', ()=>enregistrerNote(jobId));
-}
-function fermerNotes(){
-  document.getElementById('modalNotesBg').style.display = 'none';
-}
-async function enregistrerNote(jobId){
-  const zone = document.getElementById('inpNouvelleNote');
-  const texte = zone.value.trim();
-  if(!texte) return;
-  try{
-    await appelerTechApp({ action:'ajouter_note', job_id: jobId, tech_id: techId, note: texte });
-    showToast('Note enregistrée');
-    fermerNotes();
-    await chargerJournee();
-  }catch(err){
-    showToast(`Erreur: ${err.message}`);
-  }
-}
-
-/* ============================================================
-   Annulation d'un rendez-vous
-   ============================================================ */
-async function confirmerAnnulation(jobId){
-  const job = jobsCourants.find(j=>j.id===jobId);
-  const nomClient = job ? job.client_nom : 'ce rendez-vous';
-  if(!confirm(`Annuler le rendez-vous de ${nomClient}? Cette action est irréversible.`)) return;
-  try{
-    await appelerTechApp({ action:'annuler', job_id: jobId, tech_id: techId });
-    showToast('Rendez-vous annulé');
-    await chargerJournee();
-  }catch(err){
-    showToast(`Erreur: ${err.message}`);
-  }
-}
-
-async function marquerEvenement(jobId, type){
-  try{
-    await appelerTechApp({ action:'evenement', job_id: jobId, tech_id: techId, type });
-    showToast(type==='arrivee' ? 'Arrivée enregistrée' : 'Départ enregistré');
-    await chargerJournee();
-    // Rapport automatique dès que le job est marqué "parti".
-    if(type === 'depart') ouvrirRapport(jobId);
-  }catch(err){
-    showToast(`Erreur: ${err.message}`);
-  }
-}
-
-/* ============================================================
-   Photos
-   ============================================================ */
-let jobPourUpload = null;
-const inputPhoto = document.createElement('input');
-inputPhoto.type = 'file';
-inputPhoto.accept = 'image/*';
-// Pas d'attribut "capture" — le téléphone propose alors le choix entre
-// prendre une photo ET piger dans la galerie, plutôt que forcer la caméra.
-inputPhoto.multiple = true;
-document.body.appendChild(inputPhoto);
-
-function declencherUploadPhoto(jobId){
-  jobPourUpload = jobId;
-  inputPhoto.value = '';
-  inputPhoto.click();
-}
-
-inputPhoto.addEventListener('change', async ()=>{
-  const fichiers = [...inputPhoto.files];
-  if(!fichiers.length || !jobPourUpload) return;
-  showToast(`Envoi de ${fichiers.length} photo(s)…`);
-  let ok = 0;
-  for(const f of fichiers){
-    try{
-      const base64 = await new Promise((resolve,reject)=>{
-        const reader = new FileReader();
-        reader.onload = ()=>resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(f);
-      });
-      await appelerTechApp({
-        action:'photo_upload', job_id: jobPourUpload, tech_id: techId,
-        image_base64: base64, filename: f.name
-      });
-      ok++;
-    }catch(err){
-      console.error(err);
+function updateRow(id, field, val) {
+  const r = rows.find(r => r.id === id);
+  if (!r) return;
+  if (field === 'service') {
+    const svc = CATALOGUE.find(c => c.id === val);
+    r.serviceId = val;
+    r.nom       = svc ? svc.nom : "";
+    if (svc) {
+      r.dur  = svc.duree_min_base;
+      r.prix = svc.prix_base;
     }
   }
-  showToast(`${ok}/${fichiers.length} photo(s) envoyée(s)`);
-  await chargerJournee();
-});
-
-/* ============================================================
-   Rapport automatique
-   ============================================================ */
-function fmtHeure(ts){
-  if(!ts) return '—';
-  return new Date(ts).toLocaleTimeString('fr-CA', { hour:'2-digit', minute:'2-digit' });
+  if (field === 'qty')     r.qty     = parseInt(val) || 1;
+  if (field === 'dur')     r.dur     = val;
+  if (field === 'prix')    r.prix    = val;
+  if (field === 'indeter') { r.indeter = val; if (val) r.prix = ''; }
+  render();
 }
-function fmtDuree(debut, fin){
-  if(!debut || !fin) return '—';
-  const min = Math.round((new Date(fin) - new Date(debut))/60000);
+
+function durLabel(min) {
+  min = parseInt(min) || 0;
+  if (min === 0) return '—';
   const h = Math.floor(min/60), m = min%60;
-  return h>0 ? `${h} h ${m} min` : `${m} min`;
+  return h > 0 ? (m > 0 ? h+'h '+m+'min' : h+'h') : m+' min';
 }
 
-function urlRapportClient(jobId){
-  return `${window.location.origin}${window.location.pathname.replace(/app-tech\.html$/, 'rapport-client.html')}?job=${jobId}`;
-}
+function render() {
+  const list = document.getElementById('svc-list');
+  list.innerHTML = '';
 
-function lienClientHtml(jobId){
-  const url = urlRapportClient(jobId);
-  return `<div style="background:var(--teal-tint); border-radius:9px; padding:10px 12px; font-size:12.5px; word-break:break-all; margin-bottom:8px;">${url}</div>
-    <div style="display:flex; gap:8px;">
-      <button class="btn-action secondary" onclick="copierLienClient('${jobId}')">📋 Copier le lien</button>
-      ${navigator.share ? `<button class="btn-action secondary" onclick="partagerLienClient('${jobId}')">📤 Partager</button>` : ''}
-    </div>`;
-}
+  rows.forEach(r => {
+    const wrap = document.createElement('div');
+    wrap.className = 'svc-card';
 
-async function preparerLienClient(jobId){
-  const annees = document.getElementById('inpAnnees').value || 2;
-  const zone = document.getElementById('zoneLienClient');
-  zone.innerHTML = '<p class="empty-note">Préparation…</p>';
-  try{
-    await appelerTechApp({ action:'preparer_rappel_client', job_id: jobId, annees });
-    zone.innerHTML = lienClientHtml(jobId);
-    showToast('Lien prêt à partager avec le client');
-  }catch(err){
-    zone.innerHTML = `<p class="empty-note">Erreur: ${err.message}</p>`;
-  }
-}
+    const opts = CATALOGUE.map(c =>
+      `<option value="${c.id}"${r.serviceId===c.id?' selected':''}>${c.nom}</option>`
+    ).join('');
 
-function copierLienClient(jobId){
-  navigator.clipboard.writeText(urlRapportClient(jobId)).then(()=>showToast('Lien copié'));
-}
+    let html = `
+      <div class="svc-top">
+        <select class="${r.serviceId?'':'empty'}" onchange="updateRow(${r.id},'service',this.value)">
+          <option value="" disabled ${r.serviceId?'':'selected'}>Choisir un service...</option>
+          ${opts}
+        </select>
+        <button class="rm-btn" onclick="removeRow(${r.id})" aria-label="Retirer">×</button>
+      </div>`;
 
-function partagerLienClient(jobId){
-  navigator.share({ title:'Rapport Air-FP', url: urlRapportClient(jobId) }).catch(()=>{});
-}
-
-async function ouvrirRapport(jobId){
-  const bg = document.getElementById('modalRapportBg');
-  const modal = document.getElementById('modalRapport');
-  bg.style.display = 'flex';
-  modal.innerHTML = '<p class="empty-note">Chargement du rapport…</p>';
-  try{
-    const data = await appelerTechApp({ action:'rapport', job_id: jobId });
-    const j = data.job, c = data.client || {};
-    modal.innerHTML = `
-      <button class="modal-close" id="btnFermerRapport">×</button>
-      <h2>Rapport de job</h2>
-      <div class="sub">${data.van_nom||''} · ${j.date}</div>
-      <div class="rapport-row"><span>Client</span><span>${c.nom||''}</span></div>
-      <div class="rapport-row"><span>Adresse</span><span>${j.adresse||c.adresse||''} ${(j.adresse||c.adresse||j.lat!=null) ? `<a href="${urlGoogleMaps({adresse:j.adresse||c.adresse, lat:j.lat, lng:j.lng})}" target="_blank" rel="noopener" style="color:var(--teal);">🗺️</a>` : ''}</span></div>
-      <div class="rapport-row"><span>Téléphone</span><span>${c.telephone||'—'}</span></div>
-      <div class="rapport-row"><span>Services</span><span>${(data.services||[]).join(', ')}</span></div>
-      <div class="rapport-row"><span>Heure prévue</span><span>${j.heure_debut} – ${j.heure_fin}</span></div>
-      <div class="rapport-row"><span>Arrivée réelle</span><span>${fmtHeure(data.arrivee_ts)}</span></div>
-      <div class="rapport-row"><span>Départ réel</span><span>${fmtHeure(data.depart_ts)}</span></div>
-      <div class="rapport-row"><span>Durée réelle</span><span>${fmtDuree(data.arrivee_ts, data.depart_ts)}</span></div>
-      ${j.notes ? `<div class="rapport-row"><span>Notes</span><span>${j.notes}</span></div>` : ''}
-      ${(data.photos||[]).length ? `<div class="rapport-photos">${data.photos.map(p=>`<img src="${p.url}">`).join('')}</div>` : '<p class="empty-note">Aucune photo pour ce job.</p>'}
-      <div style="margin-top:18px; padding-top:14px; border-top:1.5px solid var(--line);">
-        <h3 style="font-size:13px; text-transform:uppercase; font-family:var(--font-mono); color:var(--teal-dark); margin:0 0 10px;">Rapport client & rappel</h3>
-        <label style="font-size:12.5px; color:var(--ink-soft);">Entretien recommandé dans…</label>
-        <div style="display:flex; gap:8px; align-items:center; margin:6px 0 12px;">
-          <input type="number" id="inpAnnees" min="1" max="10" step="1" value="${data.rappel?.annees_recommandees ?? 2}" style="width:60px; padding:8px; border:1.5px solid var(--line); border-radius:8px; font-family:var(--font-body); font-size:14px;">
-          <span style="font-size:13px; color:var(--ink-soft);">an(s)</span>
-          <button id="btnPreparerLien" style="margin-left:auto; padding:9px 14px; border-radius:8px; border:1.5px solid var(--teal); background:var(--surface); color:var(--teal-dark); font-family:var(--font-body); font-size:13px; font-weight:600; cursor:pointer;">Préparer le lien client</button>
+    html += `
+      <div class="svc-bottom">
+        <div class="svc-field">
+          <label>Qté</label>
+          <input type="number" min="1" value="${r.qty}" style="text-align:center"
+            onchange="updateRow(${r.id},'qty',this.value)">
         </div>
-        <div id="zoneLienClient">${data.rappel ? lienClientHtml(jobId) : ''}</div>
+        <div class="svc-field">
+          <label>Durée (min)</label>
+          <input type="number" min="0" placeholder="ex: 180" value="${r.dur}"
+            onchange="updateRow(${r.id},'dur',this.value)">
+        </div>
+        <div class="svc-field">
+          <label>Prix ($)</label>
+          <input type="number" min="0" placeholder="${r.indeter?'—':'ex: 429'}"
+            value="${r.indeter?'':r.prix}" ${r.indeter?'disabled':''}
+            onchange="updateRow(${r.id},'prix',this.value)">
+        </div>
       </div>
-      <div class="modal-btns">
-        <button class="btn-fermer" id="btnFermerRapport2">Fermer</button>
-        <button class="btn-print" onclick="window.print()">Imprimer / PDF</button>
-      </div>
-    `;
-    document.getElementById('btnFermerRapport').addEventListener('click', fermerRapport);
-    document.getElementById('btnFermerRapport2').addEventListener('click', fermerRapport);
-    document.getElementById('btnPreparerLien').addEventListener('click', ()=>preparerLienClient(jobId));
-  }catch(err){
-    modal.innerHTML = `<p class="empty-note">Impossible de charger le rapport (${err.message}).</p>
-      <div class="modal-btns"><button class="btn-fermer" onclick="document.getElementById('modalRapportBg').style.display='none'">Fermer</button></div>`;
+      <div class="indeter-row">
+        <input type="checkbox" ${r.indeter?'checked':''} onchange="updateRow(${r.id},'indeter',this.checked)">
+        <span>Prix à déterminer</span>
+      </div>`;
+
+    wrap.innerHTML = html;
+    list.appendChild(wrap);
+  });
+
+  const totalDur = rows.reduce((s,r) => s + (parseInt(r.dur)||0)*r.qty, 0);
+  let total = 0, hasIndet = false;
+  rows.forEach(r => { if (r.indeter) hasIndet = true; else total += (parseFloat(r.prix)||0)*r.qty; });
+
+  const summary = document.getElementById('summary');
+  const vipCard = document.getElementById('vip-card');
+  const vipCompare = document.getElementById('vip-compare');
+  const vipChecked = document.getElementById('vip-check').checked;
+  const suffix = hasIndet ? ' + ?' : '';
+
+  if (rows.length > 0) {
+    summary.style.display = 'flex';
+    vipCard.style.display = 'block';
+    document.getElementById('dur-val').textContent   = durLabel(totalDur);
+    document.getElementById('total-val').textContent = Math.round(total)+'$'+suffix;
+
+    if (vipChecked) {
+      const totalVip = total * (1 - VIP_DISCOUNT);
+      vipCompare.style.display = 'flex';
+      document.getElementById('vip-reg-val').textContent   = Math.round(total)+'$'+suffix;
+      document.getElementById('vip-final-val').textContent = Math.round(totalVip)+'$'+suffix;
+    } else {
+      vipCompare.style.display = 'none';
+    }
+  } else {
+    summary.style.display = 'none';
+    vipCard.style.display = 'none';
   }
 }
-function fermerRapport(){
-  document.getElementById('modalRapportBg').style.display = 'none';
-}
 
-/* ============================================================
-   Nouveau rendez-vous rapide — seules la date et l'heure de début
-   sont obligatoires, tout le reste (client, van, adresse...) peut
-   être laissé vide et complété plus tard.
-   ============================================================ */
-document.getElementById('btnNouveauRdv').addEventListener('click', ouvrirNouveauRdv);
+async function envoyer() {
+  const nom      = document.getElementById('nom').value.trim();
+  const tel      = document.getElementById('tel').value.trim();
+  const courriel = document.getElementById('courriel').value.trim();
+  const adresse  = document.getElementById('adresse').value.trim();
+  const jour     = document.getElementById('sel-jour').value;
+  const heure    = document.getElementById('sel-heure').value;
+  const min      = document.getElementById('sel-min').value;
+  const vip      = document.getElementById('vip-check').checked;
+  const notes    = document.getElementById('notes-tech').value.trim();
+  const msg      = document.getElementById('val-msg');
+  const btn      = document.getElementById('send-btn');
 
-function ouvrirNouveauRdv(){
-  const bg = document.getElementById('modalNouveauBg');
-  const modal = document.getElementById('modalNouveau');
-  const optionsVan = vansCourants.map(v=>`<option value="${v.id}">${v.nom}</option>`).join('');
-  modal.innerHTML = `
-    <button class="modal-close" id="btnFermerNouveau">×</button>
-    <h2>Nouveau rendez-vous</h2>
-    <div class="sub">Seules la date et l'heure de début sont obligatoires — le reste peut être complété plus tard (ex: pour juste bloquer une plage).</div>
-    <div class="form-grid">
-      <label>Date *</label>
-      <input type="date" id="inpNvDate" value="${toISODate(dateCourante)}">
-      <label>Heure début *</label>
-      <input type="time" id="inpNvHeureDebut">
-      <label>Heure fin</label>
-      <input type="time" id="inpNvHeureFin" placeholder="1h par défaut">
-      <label>Van</label>
-      <select id="inpNvVan"><option value="">Aucune pour l'instant</option>${optionsVan}</select>
-      <label>Nom client</label>
-      <input type="text" id="inpNvNom" placeholder="optionnel">
-      <label>Téléphone</label>
-      <input type="text" id="inpNvTelephone" placeholder="optionnel">
-      <label>Courriel</label>
-      <input type="text" id="inpNvCourriel" placeholder="optionnel">
-      <label>Adresse</label>
-      <input type="text" id="inpNvAdresse" placeholder="optionnel">
-      <label>Note</label>
-      <textarea id="inpNvNotes" rows="2" placeholder="ex: pas disponible, job chez client X"></textarea>
-    </div>
-    <div class="modal-btns">
-      <button class="btn-fermer" id="btnFermerNouveau2">Annuler</button>
-      <button class="btn-print" id="btnCreerRdv">Créer</button>
-    </div>
-  `;
-  bg.style.display = 'flex';
-  document.getElementById('btnFermerNouveau').addEventListener('click', fermerNouveau);
-  document.getElementById('btnFermerNouveau2').addEventListener('click', fermerNouveau);
-  document.getElementById('btnCreerRdv').addEventListener('click', creerRdvRapide);
-}
-
-function fermerNouveau(){
-  document.getElementById('modalNouveauBg').style.display = 'none';
-}
-
-async function creerRdvRapide(){
-  const date = document.getElementById('inpNvDate').value;
-  const heureDebut = document.getElementById('inpNvHeureDebut').value;
-  if(!date || !heureDebut){
-    showToast('La date et l\'heure de début sont requises');
+  const servicesIncomplets = rows.some(r => !r.serviceId);
+  if (!nom || !tel || !courriel || !adresse || !jour || !heure || !min || rows.length === 0 || servicesIncomplets) {
+    msg.style.display = 'block';
+    msg.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
+  msg.style.display = 'none';
+
+  const svcsTexte = rows.map(r => {
+    const p = r.indeter ? 'A determiner' : (parseFloat(r.prix)||0)+'$';
+    return `${r.nom} x${r.qty} - ${p}`;
+  }).join(' | ');
+
+  const heureComplete = heure+':'+min+':00';
+
+  // Payload pour le webhook Make existant — on ajoute juste "notes" (utilisé
+  // nulle part avant) pour que Make puisse la mettre dans la description de
+  // l'événement Google Calendar créé. Le reste est inchangé.
   const payload = {
-    action:'creer_rdv_rapide',
-    tech_id: techId,
-    date,
-    heure_debut: heureDebut,
-    heure_fin: document.getElementById('inpNvHeureFin').value || undefined,
-    van_id: document.getElementById('inpNvVan').value || null,
-    nom: document.getElementById('inpNvNom').value,
-    telephone: document.getElementById('inpNvTelephone').value,
-    courriel: document.getElementById('inpNvCourriel').value,
-    adresse: document.getElementById('inpNvAdresse').value,
-    notes: document.getElementById('inpNvNotes').value,
+    nom: nom,
+    telephone: tel,
+    courriel: courriel,
+    adresse: adresse,
+    date: jour,
+    heure: heureComplete,
+    services: svcsTexte,
+    vip: vip,
+    notes: notes
   };
-  const btn = document.getElementById('btnCreerRdv');
+
+  // Payload structuré (services par service_id officiel) pour Supabase — même
+  // base de données que le site de réservation et l'app technicien.
+  const payloadSupabase = {
+    nom: nom,
+    telephone: tel,
+    courriel: courriel,
+    adresse: adresse,
+    date: jour,
+    heure: heureComplete,
+    vip: vip,
+    notes_technicien: notes,
+    services: rows.map(r => ({
+      service_id: r.serviceId,
+      quantite: r.qty,
+      duree_min: parseInt(r.dur) || 0,
+      prix: r.indeter ? 0 : (parseFloat(r.prix) || 0),
+      indetermine: !!r.indeter
+    }))
+  };
+
+  btn.textContent = 'Enregistrement...';
   btn.disabled = true;
-  btn.textContent = 'Création…';
-  try{
-    await appelerTechApp(payload);
-    showToast('Rendez-vous créé');
-    fermerNouveau();
-    if(date !== toISODate(dateCourante)){
-      const [an, mo, jr] = date.split('-').map(Number);
-      dateCourante = new Date(an, mo-1, jr);
-      renderDateLbl();
+
+  // 1) D'abord Supabase — c'est la source de vérité qui bloque les conflits
+  // de van. Si ça échoue, on arrête tout: le rendez-vous n'est PAS confirmé.
+  let resultatSupabase;
+  try {
+    const resSb = await fetch(`${SUPABASE_URL}/functions/v1/confirmer_rdv_manuel`, {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payloadSupabase)
+    });
+    resultatSupabase = await resSb.json();
+    if (!resSb.ok || !resultatSupabase.ok) {
+      throw new Error(resultatSupabase.erreur || 'Erreur Supabase');
     }
-    await chargerJournee();
-  }catch(err){
-    showToast(`Erreur: ${err.message}`);
+  } catch (err) {
+    btn.textContent = 'Erreur (non enregistré) — réessayer';
     btn.disabled = false;
-    btn.textContent = 'Créer';
+    return;
   }
+
+  // 2) Ensuite le webhook Make existant, inchangé.
+  btn.textContent = 'Envoi en cours...';
+  fetch(WEBHOOK_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(r => {
+    if (r.ok) {
+      btn.innerHTML = resultatSupabase.avertissement
+        ? '✓ Enregistré — ⚠️ van à assigner manuellement'
+        : '✓ Confirmation envoyée';
+      btn.style.background = resultatSupabase.avertissement ? '#fbbf24' : '#4ade80';
+    } else {
+      return Promise.reject();
+    }
+  })
+  .catch(() => {
+    // Le rendez-vous EST déjà enregistré dans Supabase à ce stade — seul
+    // l'envoi de la confirmation Make a échoué.
+    btn.textContent = 'Enregistré, mais confirmation non envoyée — réessayer';
+    btn.disabled = false;
+  });
 }
 
-/* ============================================================
-   Démarrage
-   ============================================================ */
-renderDateLbl();
-initTechPicker(false);
-if(techId) chargerJournee();
+async function init() {
+  initSelects();
+  await chargerCatalogue();
+  addSvc();
+}
+init();
 </script>
 </body>
 </html>
