@@ -17,8 +17,6 @@
   --surface2: #293548;
   --border: #334155;
   --accent: #38bdf8;
-  --vip: #fbbf24;
-  --vip-dim: #fbbf2420;
   --text: #f1f5f9;
   --text-muted: #94a3b8;
   --text-dim: #64748b;
@@ -124,31 +122,6 @@ body { padding-bottom: 50px; }
 .summary-item span:last-child { font-size: 16px; font-weight: 600; font-family: 'DM Mono', monospace; color: var(--accent); }
 .summary-divider { width: 1px; height: 30px; background: var(--border); }
 
-.vip-card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); margin-top: 10px; overflow: hidden;
-}
-.vip-toggle {
-  display: flex; align-items: center; gap: 12px; padding: 14px; cursor: pointer;
-}
-.vip-toggle input[type=checkbox] {
-  width: 20px; height: 20px; accent-color: var(--vip); flex-shrink: 0;
-}
-.vip-toggle-text { display: flex; flex-direction: column; gap: 2px; }
-.vip-toggle-title { font-size: 14px; font-weight: 600; color: var(--text); }
-.vip-toggle-sub { font-size: 12px; color: var(--text-muted); }
-.vip-compare {
-  display: flex; border-top: 1px solid var(--border); background: var(--vip-dim);
-}
-.vip-compare-item {
-  flex: 1; display: flex; flex-direction: column; gap: 3px; align-items: center;
-  padding: 10px 8px;
-}
-.vip-compare-item:first-child { border-right: 1px solid var(--border); }
-.vip-compare-item span:first-child { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
-.vip-reg-val { font-family: 'DM Mono', monospace; font-size: 14px; color: var(--text-dim); text-decoration: line-through; }
-.vip-final-val { font-family: 'DM Mono', monospace; font-size: 17px; font-weight: 600; color: var(--vip); }
-
 .send-btn {
   width: 100%; margin-top: 28px; padding: 16px; background: var(--accent);
   border: none; border-radius: var(--radius); color: #0f172a;
@@ -157,6 +130,27 @@ body { padding-bottom: 50px; }
 }
 .send-btn:active { opacity: 0.85; }
 .err-msg { font-size: 13px; color: var(--danger); margin-top: 12px; text-align: center; display: none; }
+
+.search-row { display: flex; align-items: center; gap: 8px; padding: 12px 14px; }
+.search-row input {
+  flex: 1; background: transparent; border: none; outline: none;
+  color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; width: 100%;
+  -webkit-appearance: none; appearance: none;
+}
+.search-row input::placeholder { color: var(--text-dim); }
+.search-btn {
+  flex-shrink: 0; background: var(--accent); border: none; border-radius: 8px;
+  padding: 9px 14px; color: #0f172a; font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.search-btn:active { opacity: 0.85; }
+.search-results { margin-top: 8px; }
+.result-item { padding: 12px 14px; border-bottom: 1px solid var(--border); cursor: pointer; }
+.result-item:last-child { border-bottom: none; }
+.result-item:active { background: var(--surface2); }
+.result-nom { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; }
+.result-detail { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.result-msg { padding: 14px; text-align: center; color: var(--text-dim); font-size: 13px; }
 </style>
 </head>
 <body>
@@ -170,6 +164,16 @@ body { padding-bottom: 50px; }
 </div>
 
 <div class="content">
+
+  <p class="section-label">Rechercher un client existant</p>
+  <div class="card">
+    <div class="search-row">
+      <input type="text" id="recherche-client" placeholder="Nom, téléphone ou courriel..." autocomplete="off"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();rechercherClient();}">
+      <button type="button" class="search-btn" onclick="rechercherClient()">Rechercher</button>
+    </div>
+  </div>
+  <div class="search-results" id="resultats-recherche" style="display:none"></div>
 
   <p class="section-label">Client</p>
   <div class="card">
@@ -216,26 +220,6 @@ body { padding-bottom: 50px; }
     <div class="summary-item"><span>Total estimé</span><span id="total-val">—</span></div>
   </div>
 
-  <div class="vip-card" id="vip-card" style="display:none">
-    <label class="vip-toggle" for="vip-check">
-      <input type="checkbox" id="vip-check" onchange="render()">
-      <div class="vip-toggle-text">
-        <span class="vip-toggle-title">Inscription VIP gratuite</span>
-        <span class="vip-toggle-sub">-5% rabais immédiat sur cette soumission</span>
-      </div>
-    </label>
-    <div class="vip-compare" id="vip-compare" style="display:none">
-      <div class="vip-compare-item">
-        <span>Prix régulier</span>
-        <span class="vip-reg-val" id="vip-reg-val">—</span>
-      </div>
-      <div class="vip-compare-item">
-        <span>Prix VIP</span>
-        <span class="vip-final-val" id="vip-final-val">—</span>
-      </div>
-    </div>
-  </div>
-
   <p class="section-label">Notes (optionnel)</p>
   <div class="card">
     <div class="field">
@@ -259,7 +243,6 @@ const JOURS_FR = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','same
 const MOIS_FR  = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 
 const WEBHOOK_URL = 'https://hook.us2.make.com/cq70a7dh5a8g5hdhltwuyf6tf4v06gtc';
-const VIP_DISCOUNT = 0.05;
 
 // Enregistrement dans Supabase — même base de données que le site de
 // réservation en ligne et l'app technicien, pour que ce rendez-vous confirmé
@@ -292,6 +275,68 @@ function initSelects() {
 
 let rows = [];
 let CATALOGUE = []; // chargé depuis Supabase (liste officielle des services actifs)
+let derniersResultats = []; // dernière recherche de client (pour l'autofill)
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+async function rechercherClient() {
+  const terme = document.getElementById('recherche-client').value.trim();
+  const box   = document.getElementById('resultats-recherche');
+
+  if (terme.length < 2) {
+    box.style.display = 'block';
+    box.innerHTML = '<div class="card"><div class="result-msg">Tape au moins 2 caractères</div></div>';
+    return;
+  }
+
+  box.style.display = 'block';
+  box.innerHTML = '<div class="card"><div class="result-msg">Recherche...</div></div>';
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/confirmer_rdv_manuel`, {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ action: 'rechercher_client', terme })
+    });
+    const data = await res.json();
+    derniersResultats = data.clients || [];
+
+    if (!derniersResultats.length) {
+      box.innerHTML = '<div class="card"><div class="result-msg">Aucun client trouvé</div></div>';
+      return;
+    }
+
+    box.innerHTML = '<div class="card">' + derniersResultats.map((c, i) => {
+      const details = [c.telephone, c.courriel, c.adresse].filter(Boolean).join(' · ');
+      return `<div class="result-item" onclick="selectionnerClient(${i})">
+        <div class="result-nom">${escapeHtml(c.nom || '(sans nom)')}</div>
+        <div class="result-detail">${escapeHtml(details || '—')}</div>
+      </div>`;
+    }).join('') + '</div>';
+  } catch (err) {
+    box.innerHTML = '<div class="card"><div class="result-msg">Erreur de recherche — réessaie</div></div>';
+  }
+}
+
+function selectionnerClient(i) {
+  const c = derniersResultats[i];
+  if (!c) return;
+  document.getElementById('nom').value      = c.nom || '';
+  document.getElementById('tel').value      = c.telephone || '';
+  document.getElementById('courriel').value = c.courriel || '';
+  document.getElementById('adresse').value  = c.adresse || '';
+
+  document.getElementById('resultats-recherche').style.display = 'none';
+  document.getElementById('resultats-recherche').innerHTML = '';
+  document.getElementById('recherche-client').value = '';
+  render();
+}
 
 async function chargerCatalogue() {
   try {
@@ -401,28 +446,14 @@ function render() {
   rows.forEach(r => { if (r.indeter) hasIndet = true; else total += (parseFloat(r.prix)||0)*r.qty; });
 
   const summary = document.getElementById('summary');
-  const vipCard = document.getElementById('vip-card');
-  const vipCompare = document.getElementById('vip-compare');
-  const vipChecked = document.getElementById('vip-check').checked;
   const suffix = hasIndet ? ' + ?' : '';
 
   if (rows.length > 0) {
     summary.style.display = 'flex';
-    vipCard.style.display = 'block';
     document.getElementById('dur-val').textContent   = durLabel(totalDur);
     document.getElementById('total-val').textContent = Math.round(total)+'$'+suffix;
-
-    if (vipChecked) {
-      const totalVip = total * (1 - VIP_DISCOUNT);
-      vipCompare.style.display = 'flex';
-      document.getElementById('vip-reg-val').textContent   = Math.round(total)+'$'+suffix;
-      document.getElementById('vip-final-val').textContent = Math.round(totalVip)+'$'+suffix;
-    } else {
-      vipCompare.style.display = 'none';
-    }
   } else {
     summary.style.display = 'none';
-    vipCard.style.display = 'none';
   }
 }
 
@@ -434,7 +465,6 @@ async function envoyer() {
   const jour     = document.getElementById('sel-jour').value;
   const heure    = document.getElementById('sel-heure').value;
   const min      = document.getElementById('sel-min').value;
-  const vip      = document.getElementById('vip-check').checked;
   const notes    = document.getElementById('notes-tech').value.trim();
   const msg      = document.getElementById('val-msg');
   const btn      = document.getElementById('send-btn');
@@ -465,7 +495,6 @@ async function envoyer() {
     date: jour,
     heure: heureComplete,
     services: svcsTexte,
-    vip: vip,
     notes: notes
   };
 
@@ -478,7 +507,6 @@ async function envoyer() {
     adresse: adresse,
     date: jour,
     heure: heureComplete,
-    vip: vip,
     notes_technicien: notes,
     services: rows.map(r => ({
       service_id: r.serviceId,
